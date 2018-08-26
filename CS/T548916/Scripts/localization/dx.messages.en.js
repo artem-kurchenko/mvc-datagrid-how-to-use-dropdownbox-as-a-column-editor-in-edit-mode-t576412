@@ -1,9 +1,9 @@
 /*!
 * DevExtreme (dx.messages.en.js)
-* Version: 17.1.5
-* Build date: Tue Aug 01 2017
+* Version: 18.1.5
+* Build date: Fri Jul 27 2018
 *
-* Copyright (c) 2012 - 2017 Developer Express Inc. ALL RIGHTS RESERVED
+* Copyright (c) 2012 - 2018 Developer Express Inc. ALL RIGHTS RESERVED
 * Read about DevExtreme licensing here: https://js.devexpress.com/Licensing/
 */
 "use strict";
@@ -14,7 +14,11 @@
             factory(require("devextreme/localization"))
         })
     } else {
-        factory(DevExpress.localization)
+        if ("object" === typeof module && module.exports) {
+            factory(require("devextreme/localization"))
+        } else {
+            factory(DevExpress.localization)
+        }
     }
 }(this, function(localization) {
     localization.loadMessages({
@@ -153,6 +157,10 @@
             "dxDataGrid-ariaSearchInGrid": "Search in data grid",
             "dxDataGrid-ariaSelectAll": "Select all",
             "dxDataGrid-ariaSelectRow": "Select row",
+            "dxDataGrid-filterBuilderPopupTitle": "Filter Builder",
+            "dxDataGrid-filterPanelCreateFilter": "Create Filter",
+            "dxDataGrid-filterPanelClearFilter": "Clear",
+            "dxDataGrid-filterPanelFilterEnabledHint": "Enable the filter",
             "dxTreeList-ariaTreeList": "Tree list",
             "dxTreeList-editingAddRowToNode": "Add",
             "dxPager-infoText": "Page {0} of {1} ({2} items)",
@@ -214,6 +222,7 @@
             "dxScheduler-confirmRecurrenceEditOccurrence": "Edit appointment",
             "dxScheduler-confirmRecurrenceDeleteOccurrence": "Delete appointment",
             "dxScheduler-noTimezoneTitle": "No timezone",
+            "dxScheduler-moreAppointments": "{0} more",
             "dxCalendar-todayButtonText": "Today",
             "dxCalendar-ariaWidgetName": "Calendar",
             "dxColorView-ariaRed": "Red",
@@ -221,9 +230,34 @@
             "dxColorView-ariaBlue": "Blue",
             "dxColorView-ariaAlpha": "Transparency",
             "dxColorView-ariaHex": "Color code",
+            "dxTagBox-selected": "{0} selected",
+            "dxTagBox-allSelected": "All selected ({0})",
+            "dxTagBox-moreSelected": "{0} more",
             "vizExport-printingButtonText": "Print",
             "vizExport-titleMenuText": "Exporting/Printing",
-            "vizExport-exportButtonText": "{0} file"
+            "vizExport-exportButtonText": "{0} file",
+            "dxFilterBuilder-and": "And",
+            "dxFilterBuilder-or": "Or",
+            "dxFilterBuilder-notAnd": "Not And",
+            "dxFilterBuilder-notOr": "Not Or",
+            "dxFilterBuilder-addCondition": "Add Condition",
+            "dxFilterBuilder-addGroup": "Add Group",
+            "dxFilterBuilder-enterValueText": "<enter a value>",
+            "dxFilterBuilder-filterOperationEquals": "Equals",
+            "dxFilterBuilder-filterOperationNotEquals": "Does not equal",
+            "dxFilterBuilder-filterOperationLess": "Is less than",
+            "dxFilterBuilder-filterOperationLessOrEquals": "Is less than or equal to",
+            "dxFilterBuilder-filterOperationGreater": "Is greater than",
+            "dxFilterBuilder-filterOperationGreaterOrEquals": "Is greater than or equal to",
+            "dxFilterBuilder-filterOperationStartsWith": "Starts with",
+            "dxFilterBuilder-filterOperationContains": "Contains",
+            "dxFilterBuilder-filterOperationNotContains": "Does not contain",
+            "dxFilterBuilder-filterOperationEndsWith": "Ends with",
+            "dxFilterBuilder-filterOperationIsBlank": "Is blank",
+            "dxFilterBuilder-filterOperationIsNotBlank": "Is not blank",
+            "dxFilterBuilder-filterOperationBetween": "Is between",
+            "dxFilterBuilder-filterOperationAnyOf": "Is any of",
+            "dxFilterBuilder-filterOperationNoneOf": "Is none of"
         }
     })
 });

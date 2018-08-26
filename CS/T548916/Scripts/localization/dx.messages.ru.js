@@ -1,9 +1,9 @@
 /*!
 * DevExtreme (dx.messages.ru.js)
-* Version: 17.1.5
-* Build date: Tue Aug 01 2017
+* Version: 18.1.5
+* Build date: Fri Jul 27 2018
 *
-* Copyright (c) 2012 - 2017 Developer Express Inc. ALL RIGHTS RESERVED
+* Copyright (c) 2012 - 2018 Developer Express Inc. ALL RIGHTS RESERVED
 * Read about DevExtreme licensing here: https://js.devexpress.com/Licensing/
 */
 "use strict";
@@ -14,7 +14,11 @@
             factory(require("devextreme/localization"))
         })
     } else {
-        factory(DevExpress.localization)
+        if ("object" === typeof module && module.exports) {
+            factory(require("devextreme/localization"))
+        } else {
+            factory(DevExpress.localization)
+        }
     }
 }(this, function(localization) {
     localization.loadMessages({
@@ -153,6 +157,10 @@
             "dxDataGrid-ariaSearchInGrid": "Искать в таблице данных",
             "dxDataGrid-ariaSelectAll": "Выбрать всё",
             "dxDataGrid-ariaSelectRow": "Выбрать строку",
+            "dxDataGrid-filterBuilderPopupTitle": "Конструктор фильтра",
+            "dxDataGrid-filterPanelCreateFilter": "Создать фильтр",
+            "dxDataGrid-filterPanelClearFilter": "Очистить",
+            "dxDataGrid-filterPanelFilterEnabledHint": "Активировать фильтр",
             "dxTreeList-ariaTreeList": "Иерархическая таблица данных",
             "dxTreeList-editingAddRowToNode": "Добавить",
             "dxPager-infoText": "Страница {0} из {1} (Всего элементов: {2})",
@@ -214,6 +222,7 @@
             "dxScheduler-confirmRecurrenceEditOccurrence": "Только это событие",
             "dxScheduler-confirmRecurrenceDeleteOccurrence": "Только это событие",
             "dxScheduler-noTimezoneTitle": "Часовой пояс не выбран",
+            "dxScheduler-moreAppointments": "и еще {0}",
             "dxCalendar-todayButtonText": "Сегодня",
             "dxCalendar-ariaWidgetName": "Календарь",
             "dxColorView-ariaRed": "Красный",
@@ -221,9 +230,34 @@
             "dxColorView-ariaBlue": "Синий",
             "dxColorView-ariaAlpha": "Прозрачность",
             "dxColorView-ariaHex": "Код цвета",
+            "dxTagBox-selected": "{0} выбрано",
+            "dxTagBox-allSelected": "Выбрано все ({0})",
+            "dxTagBox-moreSelected": "и еще {0}",
             "vizExport-printingButtonText": "Печать",
             "vizExport-titleMenuText": "Экспорт/Печать",
-            "vizExport-exportButtonText": "{0} файл"
+            "vizExport-exportButtonText": "{0} файл",
+            "dxFilterBuilder-and": "И",
+            "dxFilterBuilder-or": "Или",
+            "dxFilterBuilder-notAnd": "Не И",
+            "dxFilterBuilder-notOr": "Не Или",
+            "dxFilterBuilder-addCondition": "Добавить условие",
+            "dxFilterBuilder-addGroup": "Добавить группу",
+            "dxFilterBuilder-enterValueText": "<введите значение>",
+            "dxFilterBuilder-filterOperationEquals": "Равно",
+            "dxFilterBuilder-filterOperationNotEquals": "Не равно",
+            "dxFilterBuilder-filterOperationLess": "Меньше",
+            "dxFilterBuilder-filterOperationLessOrEquals": "Меньше или равно",
+            "dxFilterBuilder-filterOperationGreater": "Больше",
+            "dxFilterBuilder-filterOperationGreaterOrEquals": "Больше или равно",
+            "dxFilterBuilder-filterOperationStartsWith": "Начинается с",
+            "dxFilterBuilder-filterOperationContains": "Содержит",
+            "dxFilterBuilder-filterOperationNotContains": "Не содержит",
+            "dxFilterBuilder-filterOperationEndsWith": "Заканчивается на",
+            "dxFilterBuilder-filterOperationIsBlank": "Пусто",
+            "dxFilterBuilder-filterOperationIsNotBlank": "Не пусто",
+            "dxFilterBuilder-filterOperationBetween": "В диапазоне",
+            "dxFilterBuilder-filterOperationAnyOf": "Любой из",
+            "dxFilterBuilder-filterOperationNoneOf": "Ни один из"
         }
     })
 });

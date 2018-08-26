@@ -1,9 +1,9 @@
 /*!
 * DevExtreme (dx.messages.ja.js)
-* Version: 17.1.5
-* Build date: Tue Aug 01 2017
+* Version: 18.1.5
+* Build date: Fri Jul 27 2018
 *
-* Copyright (c) 2012 - 2017 Developer Express Inc. ALL RIGHTS RESERVED
+* Copyright (c) 2012 - 2018 Developer Express Inc. ALL RIGHTS RESERVED
 * Read about DevExtreme licensing here: https://js.devexpress.com/Licensing/
 */
 "use strict";
@@ -14,7 +14,11 @@
             factory(require("devextreme/localization"))
         })
     } else {
-        factory(DevExpress.localization)
+        if ("object" === typeof module && module.exports) {
+            factory(require("devextreme/localization"))
+        } else {
+            factory(DevExpress.localization)
+        }
     }
 }(this, function(localization) {
     localization.loadMessages({
@@ -153,6 +157,10 @@
             "dxDataGrid-ariaSearchInGrid": "データ グリッド内で検索",
             "dxDataGrid-ariaSelectAll": "すべてを選択",
             "dxDataGrid-ariaSelectRow": "行の選択",
+            "dxDataGrid-filterBuilderPopupTitle": "フィルター ビルダー",
+            "dxDataGrid-filterPanelCreateFilter": "フィルターの作成",
+            "dxDataGrid-filterPanelClearFilter": "クリア",
+            "dxDataGrid-filterPanelFilterEnabledHint": "フィルターの有効化",
             "dxTreeList-ariaTreeList": "ツリー リスト",
             "dxTreeList-editingAddRowToNode": "追加",
             "dxPager-infoText": "ページ {0} / {1} ({2} アイテム)",
@@ -214,6 +222,7 @@
             "dxScheduler-confirmRecurrenceEditOccurrence": "予定を編集",
             "dxScheduler-confirmRecurrenceDeleteOccurrence": "予定を削除",
             "dxScheduler-noTimezoneTitle": "時間帯なし",
+            "dxScheduler-moreAppointments": "その他 {0} つ選択",
             "dxCalendar-todayButtonText": "今日",
             "dxCalendar-ariaWidgetName": "カレンダー",
             "dxColorView-ariaRed": "赤",
@@ -221,9 +230,34 @@
             "dxColorView-ariaBlue": "青",
             "dxColorView-ariaAlpha": "透明度",
             "dxColorView-ariaHex": "色コード",
+            "dxTagBox-selected": "{0} つ選択済み",
+            "dxTagBox-allSelected": "すべて選択済み ({0})",
+            "dxTagBox-moreSelected": "その他 {0} つ選択",
             "vizExport-printingButtonText": "印刷",
             "vizExport-titleMenuText": "エクスポート / 印刷",
-            "vizExport-exportButtonText": "{0} ファイル"
+            "vizExport-exportButtonText": "{0} ファイル",
+            "dxFilterBuilder-and": "And",
+            "dxFilterBuilder-or": "Or",
+            "dxFilterBuilder-notAnd": "Not And",
+            "dxFilterBuilder-notOr": "Not Or",
+            "dxFilterBuilder-addCondition": "条件の追加",
+            "dxFilterBuilder-addGroup": "グループの追加",
+            "dxFilterBuilder-enterValueText": "値を入力",
+            "dxFilterBuilder-filterOperationEquals": "指定の値に等しい",
+            "dxFilterBuilder-filterOperationNotEquals": "指定の値に等しくない",
+            "dxFilterBuilder-filterOperationLess": "指定の値より小さい",
+            "dxFilterBuilder-filterOperationLessOrEquals": "指定の値以下",
+            "dxFilterBuilder-filterOperationGreater": "指定の値より大きい",
+            "dxFilterBuilder-filterOperationGreaterOrEquals": "指定の値以上",
+            "dxFilterBuilder-filterOperationStartsWith": "指定の値で始まる",
+            "dxFilterBuilder-filterOperationContains": "指定の値を含む",
+            "dxFilterBuilder-filterOperationNotContains": "指定の値を含まない",
+            "dxFilterBuilder-filterOperationEndsWith": "指定の値で終わる",
+            "dxFilterBuilder-filterOperationIsBlank": "空白である",
+            "dxFilterBuilder-filterOperationIsNotBlank": "空白ではない",
+            "dxFilterBuilder-filterOperationBetween": "～から～の間",
+            "dxFilterBuilder-filterOperationAnyOf": "どちらかを含む",
+            "dxFilterBuilder-filterOperationNoneOf": "すべて含まない"
         }
     })
 });

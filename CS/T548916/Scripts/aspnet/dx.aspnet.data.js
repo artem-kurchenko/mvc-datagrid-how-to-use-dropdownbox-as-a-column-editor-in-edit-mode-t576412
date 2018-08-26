@@ -1,8 +1,9 @@
-﻿// https://github.com/DevExpress/DevExtreme.AspNet.Data
+// Version: 1.4.7
+// https://github.com/DevExpress/DevExtreme.AspNet.Data
 // Copyright (c) Developer Express Inc.
 
-// jshint strict: true, browser: true, jquery: true, undef: true, unused: true, eqeqeq: true
-/* global DevExpress, define */
+// jshint strict: true, undef: true, unused: true, eqeqeq: true
+/* global DevExpress, jQuery, define, module, require */
 
 (function(factory) {
     "use strict";
@@ -15,6 +16,12 @@
                 require("devextreme/data/utils")
             );
         });
+    } else if (typeof module === "object" && module.exports) {
+        module.exports = factory(
+            require("jquery"),
+            require("devextreme/data/custom_store"),
+            require("devextreme/data/utils")
+        );
     } else {
         DevExpress.data.AspNet = factory(
             jQuery,
@@ -35,6 +42,7 @@
     function createStoreConfig(options) {
         var keyExpr = options.key,
             loadUrl = options.loadUrl,
+            loadMethod = options.loadMethod || "GET",
             loadParams = options.loadParams,
             updateUrl = options.updateUrl,
             insertUrl = options.insertUrl,
@@ -47,18 +55,22 @@
             if(requiresKey && !keyExpr) {
                 d.reject(new Error("Primary key is not specified (operation: '" + operation + "', url: '" + ajaxSettings.url + "')"));
             } else {
-                if(operation === "load")
+                if(operation === "load") {
                     ajaxSettings.cache = false;
+                    ajaxSettings.dataType = "json";
+                } else {
+                    ajaxSettings.dataType = "text";
+                }
 
                 if(onBeforeSend)
                     onBeforeSend(operation, ajaxSettings);
 
                 $.ajax(ajaxSettings)
-                    .done(function(res) {
+                    .done(function(res, textStatus, xhr) {
                         if(customSuccessHandler)
-                            customSuccessHandler(d, res);
+                            customSuccessHandler(d, res, xhr);
                         else
-                            d.resolve(res);
+                            d.resolve();
                     })
                     .fail(function(xhr, textStatus) {
                         var message = getErrorMessageFromXhr(xhr);
@@ -73,11 +85,11 @@
         }
 
         function filterByKey(keyValue) {
-            if(!$.isArray(keyExpr))
+            if(!Array.isArray(keyExpr))
                 return [keyExpr, keyValue];
 
-            return $.map(keyExpr, function(i) {
-                return [[i, keyValue[i]]];
+            return keyExpr.map(function(i) {
+                return [i, keyValue[i]];
             });
         }
 
@@ -89,14 +101,15 @@
 
             if(options) {
 
-                $.each(["skip", "take", "requireTotalCount", "requireGroupCount"], function() {
-                    if(this in options)
-                        result[this] = options[this];
+                ["skip", "take", "requireTotalCount", "requireGroupCount"].forEach(function(i) {
+                    if(i in options)
+                        result[i] = options[i];
                 });
 
                 var normalizeSorting = dataUtils.normalizeSortingInfo,
                     group = options.group,
-                    filter = options.filter;
+                    filter = options.filter,
+                    select = options.select;
 
                 if(options.sort)
                     result.sort = JSON.stringify(normalizeSorting(options.sort));
@@ -107,7 +120,7 @@
                     result.group = JSON.stringify(group);
                 }
 
-                if($.isArray(filter)) {
+                if(Array.isArray(filter)) {
                     filter = $.extend(true, [], filter);
                     stringifyDatesInFilter(filter);
                     result.filter = JSON.stringify(filter);
@@ -118,6 +131,12 @@
 
                 if(options.groupSummary)
                     result.groupSummary = JSON.stringify(options.groupSummary);
+
+                if(select) {
+                    if(!Array.isArray(select))
+                        select = [ select ];
+                    result.select = JSON.stringify(select);
+                }
             }
 
             $.extend(result, loadParams);
@@ -134,22 +153,32 @@
                     false,
                     {
                         url: loadUrl,
+                        method: loadMethod,
                         data: loadOptionsToActionParams(loadOptions)
                     },
                     function(d, res) {
-                        if("data" in res)
-                            d.resolve(res.data, { totalCount: res.totalCount, summary: res.summary, groupCount: res.groupCount });
-                        else
-                            d.resolve(res);
+                        processLoadResponse(d, res, function(res) {
+                            return [ res.data, createLoadExtra(res) ];
+                        });
                     }
                 );
             },
 
             totalCount: function(loadOptions) {
-                return send("load", false, {
-                    url: loadUrl,
-                    data: loadOptionsToActionParams(loadOptions, true)
-                });
+                return send(
+                    "load",
+                    false,
+                    {
+                        url: loadUrl,
+                        method: loadMethod,
+                        data: loadOptionsToActionParams(loadOptions, true)
+                    },
+                    function(d, res) {
+                        processLoadResponse(d, res, function(res) {
+                            return [ res.totalCount ];
+                        });
+                    }
+                );
             },
 
             byKey: function(key) {
@@ -158,10 +187,13 @@
                     true,
                     {
                         url: loadUrl,
+                        method: loadMethod,
                         data: loadOptionsToActionParams({ filter: filterByKey(key) })
                     },
                     function(d, res) {
-                        d.resolve(res[0]);
+                        processLoadResponse(d, res, function(res) {
+                            return [ res.data[0] ];
+                        });
                     }
                 );
             },
@@ -169,7 +201,7 @@
             update: updateUrl && function(key, values) {
                 return send("update", true, {
                     url: updateUrl,
-                    type: options.updateMethod || "PUT",
+                    method: options.updateMethod || "PUT",
                     data: {
                         key: serializeKey(key),
                         values: JSON.stringify(values)
@@ -178,21 +210,57 @@
             },
 
             insert: insertUrl && function(values) {
-                return send("insert", true, {
-                    url: insertUrl,
-                    type: options.insertMethod || "POST",
-                    data: { values: JSON.stringify(values) }
-                });
+                return send(
+                    "insert",
+                    true,
+                    {
+                        url: insertUrl,
+                        method: options.insertMethod || "POST",
+                        data: { values: JSON.stringify(values) }
+                    },
+                    function(d, res, xhr) {
+                        var mime = xhr.getResponseHeader("Content-Type"),
+                            isJSON = mime && mime.indexOf("application/json") > -1;
+                        d.resolve(isJSON ? JSON.parse(res) : res);
+                    }
+                );
             },
 
             remove: deleteUrl && function(key) {
                 return send("delete", true, {
                     url: deleteUrl,
-                    type: options.deleteMethod || "DELETE",
+                    method: options.deleteMethod || "DELETE",
                     data: { key: serializeKey(key) }
                 });
             }
 
+        };
+    }
+
+    function processLoadResponse(d, res, getResolveArgs) {
+        res = expandLoadResponse(res);
+
+        if(!res || typeof res !== "object")
+            d.reject(new Error("Unexpected response received"));
+        else
+            d.resolve.apply(d, getResolveArgs(res));
+    }
+
+    function expandLoadResponse(value) {
+        if(Array.isArray(value))
+            return { data: value };
+
+        if(typeof value === "number")
+            return { totalCount: value };
+
+        return value;
+    }
+
+    function createLoadExtra(res) {
+        return {
+            totalCount: "totalCount" in res ? res.totalCount : -1,
+            groupCount: "groupCount" in res ? res.groupCount : -1,
+            summary: res.summary || null
         };
     }
 
@@ -201,7 +269,7 @@
             return JSON.stringify(key);
 
         return key;
-    }    
+    }
 
     function serializeDate(date) {
 
@@ -219,26 +287,23 @@
             f = date.getMilliseconds();
 
         if(h + m + s + f > 0)
-            builder.push(" ", zpad(h, 2), ":", zpad(m, 2), ":", zpad(s, 2), ".", zpad(f, 3));        
+            builder.push(" ", zpad(h, 2), ":", zpad(m, 2), ":", zpad(s, 2), ".", zpad(f, 3));
 
         return builder.join("");
     }
 
     function stringifyDatesInFilter(crit) {
-        $.each(crit, function(k, v) {
-            switch($.type(v)) {
-                case "array":
-                    stringifyDatesInFilter(v);
-                    break;
-                case "date":
-                    crit[k] = serializeDate(v);
-                    break;
+        crit.forEach(function(v, k) {
+            if(Array.isArray(v)) {
+                stringifyDatesInFilter(v);
+            } else if(Object.prototype.toString.call(v) === "[object Date]") {
+                crit[k] = serializeDate(v);
             }
         });
     }
 
     function isAdvancedGrouping(expr) {
-        if(!$.isArray(expr))
+        if(!Array.isArray(expr))
             return false;
 
         for(var i = 0; i < expr.length; i++) {
@@ -265,7 +330,7 @@
             if(typeof jsonObj === "string")
                 return jsonObj;
 
-            if($.isPlainObject(jsonObj)) {
+            if(typeof jsonObj === "object") {
                 for(var key in jsonObj) {
                     if(typeof jsonObj[key] === "string")
                         return jsonObj[key];
